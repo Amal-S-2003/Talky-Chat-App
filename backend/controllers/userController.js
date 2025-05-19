@@ -2,6 +2,7 @@ const users = require("../model/userSchema");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../libs/utils");
+const cloudinary = require("../libs/cloudinary.js");
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -77,24 +78,40 @@ exports.register = async (req, res) => {
 };
 
 exports.editProfile = async (req, res) => {
+  console.log("In edit profile");
+
   try {
-    const { profilePic } = req.body;
     const userId = req.user._id;
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile Pic is required" });
+    let updateData = { ...req.body };
+
+    // Handle profile picture separately if it's a base64 string
+    if (updateData.profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(updateData.profilePic);
+      console.log("Cloudinary upload response:", uploadResponse);
+      updateData.profilePic = uploadResponse.secure_url;
     }
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
-    const updatedUser = await users.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url },
-      { new: true }
-    );
-    res.status(200).json(updatedUser);
+
+    // Remove undefined or empty values (optional)
+    Object.keys(updateData).forEach((key) => {
+      if (updateData[key] === undefined || updateData[key] === "") {
+        delete updateData[key];
+      }
+    });
+
+    const updatedUser = await users.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    console.log("Updated user:", updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (error) {
-    console.log("error in update profile:", error);
+    console.error("Error in update profile:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
 exports.logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
@@ -113,5 +130,5 @@ exports.checkAuth = (req, res) => {
   } catch (error) {
     console.log("Error in checkAuth controller", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
-  }
+  } 
 };

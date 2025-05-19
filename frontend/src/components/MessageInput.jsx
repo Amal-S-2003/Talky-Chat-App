@@ -8,6 +8,7 @@ function MessageInput() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const { sendMessage } = useContext(ChatContext);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file?.type?.startsWith("image/")) {
@@ -34,7 +35,7 @@ function MessageInput() {
     try {
       const message = { text, image: imagePreview };
       sendMessage(message);
-      console.log("Sending message:", { text, image: imagePreview });
+      console.log("Sending message:", message);
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -44,14 +45,14 @@ function MessageInput() {
   };
 
   return (
-    <div className="p-4 w-full bg-zinc-900 rounded-b-lg shadow-inner">
+    <div className="p-4 w-full bg-gray-100 rounded-b-lg shadow-inner">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-3">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-md border border-zinc-700 shadow-sm"
+              className="w-20 h-20 object-cover rounded-md border border-gray-300 shadow-sm"
             />
             <button
               onClick={removeImage}
@@ -65,10 +66,10 @@ function MessageInput() {
       )}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-        <div className="flex-1 flex items-center gap-2 bg-zinc-800 rounded-lg px-3 py-2">
+        <div className="flex-1 flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
           <input
             type="text"
-            className="w-full bg-transparent text-white placeholder:text-zinc-400 focus:outline-none"
+            className="w-full bg-transparent text-gray-800 placeholder:text-gray-400 focus:outline-none"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -84,7 +85,7 @@ function MessageInput() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-zinc-400 hover:text-white transition"
+            className="text-gray-500 hover:text-gray-700 transition"
             title="Attach image"
           >
             <Image size={20} />
@@ -94,7 +95,7 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className={`p-2 rounded-full bg-zinc-700 text-white hover:bg-white hover:text-black transition disabled:opacity-40`}
+          className={`p-2 rounded-full bg-gray-300 text-gray-800 hover:bg-gray-700 hover:text-white transition disabled:opacity-40`}
         >
           <Send size={20} />
         </button>

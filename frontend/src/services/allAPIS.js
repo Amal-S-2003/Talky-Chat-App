@@ -14,7 +14,7 @@ export const logoutAPI=async(reqBody)=>{
   return await commonAPI("POST", `${server_url}/logout`, reqBody, "");
 }
 export const updateProfileAPI=async(reqBody)=>{
-  return await commonAPI("POST", `${server_url}/update-profile`, reqBody, "");
+  return await commonAPI("PUT", `${server_url}/edit-profile`, reqBody, "");
 }
 
 

@@ -120,20 +120,19 @@ const logout = async () => {
 };
 
   // Update user profile
-  const updateProfile = async (data) => {
-    setIsUpdatingProfile(true);
-    try {
-      const res = await updateProfileAPI(data);
-      setAuthUser(res.data);
-    } catch (error) {
-      console.error(
-        "Profile update failed:",
-        error.response?.data?.message || error.message
-      );
-    } finally {
-      setIsUpdatingProfile(false);
-    }
-  };
+const updateProfile = async (data) => {
+  setIsUpdatingProfile(true);
+  try {
+    const res = await updateProfileAPI(data);
+    setAuthUser(res.data);
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message || error.message || "Unknown error";
+    console.error("Profile update failed:", errorMessage);
+  } finally {
+    setIsUpdatingProfile(false);
+  }
+};
 
   const value = {
     authUser,
