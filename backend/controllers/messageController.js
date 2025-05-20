@@ -32,37 +32,56 @@ exports. getMessages = async (req, res) => {
   }
 };
 
-exports. sendMessage = async (req, res) => {
-  console.log(("sendMessage func"));
-  
+exports.sendMessage = async (req, res) => {
+  console.log("sendMessage func");
+  console.log("Params:", req.params);
+
   try {
     const { text, image } = req.body;
-    // console.log("text, image",text, image);
-    
-    const { id: receiverId } = req.params;
-    
     const senderId = req.user._id;
+
     let imageUrl;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
     }
 
-    const newMessage = new messages({
-      senderId,
-      receiverId,
-      text,
-      image: imageUrl,
-    });
-    await newMessage.save();
+    let newMessage;
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
+    if (req.params.groupId) {
+      // Group message
+      newMessage = new messages({
+        senderId,
+        group: req.params.groupId,
+        text,
+        image: imageUrl,
+      });
+
+      await newMessage.save();
+      io.emit("newMessage", newMessage); // Broadcast to all in group (you can later optimize by group rooms)
+    } else if (req.params.userId) {
+      // Individual message
+      newMessage = new messages({
+        senderId,
+        receiverId: req.params.userId,
+        text,
+        image: imageUrl,
+      });
+
+      await newMessage.save();
+
+      const receiverSocketId = getReceiverSocketId(req.params.userId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      }
+    } else {
+      return res.status(400).json({ error: "Invalid message target" });
     }
+
     res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessage:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+

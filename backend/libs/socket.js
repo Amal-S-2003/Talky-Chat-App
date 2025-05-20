@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} mapped to socket ${socket.id}`);
   }
 
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  io.emit("getOnlineUsers", Object.keys(userSocketMap)); 
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
@@ -42,9 +42,19 @@ io.on("connection", (socket) => {
   });
 });
 
+io.on("connection", (socket) => {
+  socket.on("join-group", (groupId) => {
+    socket.join(groupId);
+  });
+
+  socket.on("group-message", ({ groupId, message }) => {
+    socket.to(groupId).emit("new-group-message", message);
+  });
+});
+
 // Exporting modules
 module.exports = {
-  io,
+  io,     
   app,
   server,
   getReceiverSocketId

@@ -5,12 +5,15 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { UserContextProvider } from "./context/UserContext.jsx";
 import { ChatContextProvider } from "./context/ChatContext.jsx";
+import { GroupContextProvider } from "./context/GroupContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <UserContextProvider>
       <ChatContextProvider>
-        <App />
+        <GroupContextProvider>
+          <App />
+        </GroupContextProvider>
       </ChatContextProvider>
     </UserContextProvider>
   </BrowserRouter>

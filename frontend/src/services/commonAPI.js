@@ -3,8 +3,6 @@ import axios from "axios";
 export const commonAPI = async (httpRequest, url, reqBody, reqHeader) => {
   // Detect if FormData is being sent
   const isFormData = reqBody instanceof FormData;
-console.log("in common sapi");
-
   const reqConfig = {
     method: httpRequest,
     url,

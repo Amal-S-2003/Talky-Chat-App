@@ -6,15 +6,15 @@ import { useContext, useEffect } from "react";
 import { UserContext } from "./context/UserContext";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
-import { Loader } from "lucide-react";
+import { Loader } from "lucide-react";  
+import CreateGroupPage from "./pages/CreateGroupPAge";
+import GroupDetails from "./pages/GroupDetails";
 
 function App() {
     const {authUser,checkAuth, isCheckingAuth,onlineUsers}=useContext(UserContext)
 
   useEffect(() => {
-    checkAuth();
-    console.log(onlineUsers);
-    
+    checkAuth();    
   }, []);
 
 
@@ -43,6 +43,11 @@ function App() {
           path="/profile"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
+
+        <Route path="/groups">
+       < Route path="create" element={<CreateGroupPage/>}/>
+       < Route path="group/:id" element={<GroupDetails/>}/>
+        </Route>
       </Routes>
     </>
   );

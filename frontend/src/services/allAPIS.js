@@ -27,6 +27,38 @@ export const getUsersAPI=async()=>{
 export const getMessagesAPI=async(userId)=>{
   return await commonAPI("GET", `${server_url}/messages/${userId}`, "", "");
 }
-export const sendMessageAPI=async(userId,messageData)=>{
-  return await commonAPI("POST", `${server_url}/messages/send/${userId}`, messageData);
+export const sendMessageAPI = async ({ userId, groupId, data }) => {
+  if (userId) {
+    return await commonAPI("POST", `${server_url}/messages/${userId}`, data);
+  } else if (groupId) {
+    return await commonAPI("POST", `${server_url}/group/${groupId}`, data);
+  } else {
+    throw new Error("No userId or groupId provided to sendMessageAPI");
+  }
+};
+
+
+
+
+// GROUPS
+export const getGroupMessagesAPI=async(groupId)=>{
+  return await commonAPI("GET", `${server_url}/group/${groupId}`, "", "");
+}
+export const getGroupsAPI=async()=>{
+  return await commonAPI("GET", `${server_url}/get-groups`, "", "");
+}
+export const createGroupAPI=async(groupData)=>{
+  return await commonAPI("POST", `${server_url}/create-group`, groupData, "");
+}
+export const editGroupAPI=async(groupId, updatedData)=>{
+  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}`, updatedData, "");
+}
+export const deleteGroupAPI=async(groupId)=>{
+  return await commonAPI("DELETE", `${server_url}/delete-group/${groupId}`, "", "");
+}
+export const addMemberAPI=async(groupId, userId)=>{
+  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/add`, userId, "");
+}
+export const removeMemberAPI=async(groupId, userId)=>{
+  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/remove`, userId, "");
 }

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Camera, Mail, User, Pencil, Check } from "lucide-react";
 import { UserContext } from "../context/UserContext";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackToHomeButton from "../components/buttons/BackToHomeButton";
 
 function ProfilePage() {
   const { authUser, isUpdatingProfile, updateProfile } = useContext(UserContext);
