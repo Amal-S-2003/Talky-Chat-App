@@ -3,6 +3,7 @@ import { ChatContext } from "../context/ChatContext";
 import { UserContext } from "../context/UserContext";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users2, UsersRound } from "lucide-react";
+import { GroupContext } from "../context/GroupContext";
 
 const Sidebar = () => {
   const {
@@ -18,6 +19,7 @@ const Sidebar = () => {
   } = useContext(ChatContext);
 
   const { onlineUsers } = useContext(UserContext);
+  const {disconnectSocket, connectSocket } = useContext(GroupContext);
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [activeTab, setActiveTab] = useState("users"); // "users" or "groups"
@@ -26,6 +28,11 @@ const Sidebar = () => {
     getUsers();
     getGroups();
   }, []);
+  useEffect(() => {
+    disconnectSocket()
+         connectSocket(selectedGroup)
+console.log("connectSocket(selectedGroup)")
+  }, [selectedGroup]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))

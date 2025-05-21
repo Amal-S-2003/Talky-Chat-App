@@ -17,7 +17,6 @@ export const ChatContextProvider = ({ children }) => {
   const [groupMessages, setGroupMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
-
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [isUsersLoading, setIsUsersLoading] = useState(false);
@@ -77,12 +76,12 @@ export const ChatContextProvider = ({ children }) => {
       ? { userId: selectedUser._id, data: messageData }
       : { groupId: selectedGroup._id, data: messageData };
 
-    const res = await sendMessageAPI(payload);
-
+      console.log(selectedGroup,messageData);
+    const res = await sendMessageAPI(payload);    
     if (selectedUser) {
       setMessages((prev) => [...prev, res.data]);
-    } else if (selectedGroup) {
-      setGroupMessages((prev) => [...prev, res.data]); // ✅ Fix here
+    } else if (selectedGroup) {      
+      setGroupMessages((prev) => [...prev, res.data]);
     }
   } catch (error) {
     console.error("Failed to send message:", error?.response?.data?.message);
@@ -106,9 +105,12 @@ const subscribeToMessages = () => {
   });
 
   // Group messages
-  socket.on("newGroupMessage", (newMessage) => {
-    if (selectedGroup && newMessage.group === selectedGroup._id) {
-      setGroupMessages((prev) => [...prev, newMessage]); // ✅ Fix here
+  socket.on("newGroupMessage", (newGroupMessage) => {
+
+    console.log(newGroupMessage);
+    
+    if (selectedGroup && newGroupMessage.group === selectedGroup._id) {
+      setGroupMessages((prev) => [...prev, newGroupMessage]); // ✅ Fix here
     }
   });
 };
@@ -125,7 +127,7 @@ useEffect(() => {
   return () => {
     unsubscribeFromMessages();
   };
-}, [socket, selectedUser, selectedGroup]);
+}, [socket,sendMessage, selectedUser, selectedGroup]);
 
   // Context value
   const value = {

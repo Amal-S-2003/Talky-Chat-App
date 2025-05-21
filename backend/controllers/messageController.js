@@ -1,7 +1,7 @@
 const users = require("../model/userSchema.js");
 const messages = require("../model/messageSchema.js");
 const cloudinary = require("../libs/cloudinary.js");
-const { getReceiverSocketId, io } = require("../libs/socket.js");
+const { getReceiverSocketId,getReceiverGroupSocketId, io } = require("../libs/socket.js");
 exports.getUserForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
@@ -37,7 +37,6 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-
 exports.sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
@@ -63,15 +62,18 @@ exports.sendMessage = async (req, res) => {
       await newMessage.save();
 
       // Populate senderId before emitting
-      const populatedMessage = await messages.findById(newMessage._id)
-        .populate("senderId", "username profilePic")
-        .populate("group", "name");
-
-      io.to(req.params.groupId).emit("newGroupMessage", populatedMessage);
-      res.status(201).json(populatedMessage);
-
-    }
-     else if (req.params.userId) {
+      const newGroupMessage = await messages
+        .findById(newMessage._id)
+        .populate("senderId", "username profilePic");
+      // .populate("group", " name");
+      res.status(201).json(newGroupMessage);
+      const receiverGroupSocketId=getReceiverGroupSocketId(req.params.groupId)      
+      if (receiverGroupSocketId) {
+        io.to(receiverGroupSocketId).emit("newGroupMessage", newGroupMessage);
+      } else {
+        console.log("Grop id not");
+      }
+    } else if (req.params.userId) {
       // Private message
       newMessage = new messages({
         senderId,
@@ -79,24 +81,17 @@ exports.sendMessage = async (req, res) => {
         text,
         image: imageUrl,
       });
-
       await newMessage.save();
-
-      // Populate senderId before emitting
-      // const populatedMessage = await messages.findById(newMessage._id)
-      //   .populate("senderId", "username profilePic")
-      //   .populate("receiverId", "username");
-
       const receiverSocketId = getReceiverSocketId(req.params.userId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("newMessage", newMessage);
       }
 
-      res.status(201).json(populatedMessage);
+      res.status(201).json(newMessage);
+      // res.status(201).json(populatedMessage);
     } else {
       return res.status(400).json({ error: "Invalid message target" });
     }
-
   } catch (error) {
     console.error("Error in sendMessage:", error);
     res.status(500).json({ error: "Internal server error" });

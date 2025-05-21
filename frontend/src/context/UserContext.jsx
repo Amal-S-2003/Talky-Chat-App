@@ -55,8 +55,6 @@ export const UserContextProvider = ({ children }) => {
 
   // Check user authentication
   const checkAuth = async () => {
-    console.log("in check auth front end");
-
     try {
       const res = await authCheck();
       setAuthUser(res.data);

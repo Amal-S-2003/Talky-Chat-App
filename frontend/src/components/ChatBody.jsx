@@ -4,6 +4,7 @@ import MessageInput from "./MessageInput";
 import { ChatContext } from "../context/ChatContext";
 import { UserContext } from "../context/UserContext";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
+import { GroupContext } from "../context/GroupContext";
 
 function ChatBody() {
   const {
