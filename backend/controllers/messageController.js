@@ -50,30 +50,28 @@ exports.sendMessage = async (req, res) => {
 
     let newMessage;
 
-    if (req.params.groupId) {
-      // Group message
-      newMessage = new messages({
-        senderId,
-        group: req.params.groupId,
-        text,
-        image: imageUrl,
-      });
+   if (req.params.groupId) {
+  // Group message
+  newMessage = new messages({
+    senderId,
+    group: req.params.groupId,
+    text,
+    image: imageUrl,
+  });
 
-      await newMessage.save();
+  await newMessage.save();
 
-      // Populate senderId before emitting
-      const newGroupMessage = await messages
-        .findById(newMessage._id)
-        .populate("senderId", "username profilePic");
-      // .populate("group", " name");
-      res.status(201).json(newGroupMessage);
-      const receiverGroupSocketId=getReceiverGroupSocketId(req.params.groupId)      
-      if (receiverGroupSocketId) {
-        io.to(receiverGroupSocketId).emit("newGroupMessage", newGroupMessage);
-      } else {
-        console.log("Grop id not");
-      }
-    } else if (req.params.userId) {
+  // Populate senderId before emitting
+  const newGroupMessage = await messages
+    .findById(newMessage._id)
+    .populate("senderId", "username profilePic");
+
+  res.status(201).json(newGroupMessage);
+
+  // ✅ Emit to all sockets in the group room
+  io.to(req.params.groupId).emit("newGroupMessage", newGroupMessage);
+}
+else if (req.params.userId) {
       // Private message
       newMessage = new messages({
         senderId,

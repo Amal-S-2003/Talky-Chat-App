@@ -53,9 +53,7 @@ export const ChatContextProvider = ({ children }) => {
     try {
       const res = isGroup
         ? await getGroupMessagesAPI(id)
-        : await getMessagesAPI(id);
-        console.log("res.data");
-        
+        : await getMessagesAPI(id);        
       isGroup ? setGroupMessages(res.data) : setMessages(res.data);
     } catch (error) {
       console.error(
@@ -68,7 +66,7 @@ export const ChatContextProvider = ({ children }) => {
   };
 
   // Send message to either selected user or selected group
-  const sendMessage = async (messageData) => {
+ const sendMessage = async (messageData) => {
   if (!selectedUser && !selectedGroup) return;
 
   try {
@@ -76,17 +74,28 @@ export const ChatContextProvider = ({ children }) => {
       ? { userId: selectedUser._id, data: messageData }
       : { groupId: selectedGroup._id, data: messageData };
 
-      console.log(selectedGroup,messageData);
-    const res = await sendMessageAPI(payload);    
+    const res = await sendMessageAPI(payload);
+
     if (selectedUser) {
       setMessages((prev) => [...prev, res.data]);
-    } else if (selectedGroup) {      
-      setGroupMessages((prev) => [...prev, res.data]);
+      socket?.emit("sendPrivateMessage", {
+        receiverId: selectedUser._id,
+        message: res.data,
+      });
+    } else if (selectedGroup) {
+      // setGroupMessages((prev) => [...prev, res.data]);
+
+      // 🔥 Emit group message to backend socket
+      socket?.emit("sendGroupMessage", {
+        groupId: selectedGroup._id,
+        message: res.data,
+      });
     }
   } catch (error) {
     console.error("Failed to send message:", error?.response?.data?.message);
   }
 };
+
 
 
 const subscribeToMessages = () => {
@@ -128,6 +137,11 @@ useEffect(() => {
     unsubscribeFromMessages();
   };
 }, [socket,sendMessage, selectedUser, selectedGroup]);
+useEffect(() => {
+  if (selectedGroup && socket) {
+    socket.emit("joinGroup", selectedGroup._id);
+  }
+}, [selectedGroup, socket]);
 
   // Context value
   const value = {

@@ -8,51 +8,71 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5174"],
+    methods: ["GET", "POST"],
   },
 });
 
-// Used to store online users: { userId: socketId }
-const userSocketMap = {};
-const groupSocketMap={}
-// Function to get the socket ID of a specific user
+// Maps
+const userSocketMap = {}; // { userId: socketId }
+
 function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
-function getReceiverGroupSocketId(groupId) {
-  return groupSocketMap[groupId];
-}
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
-  const userId = socket.handshake.query.userId;
-  const groupId = socket.handshake.query.groupId;
 
+io.on("connection", (socket) => {
+  console.log(" A user connected:", socket.id);
+
+  const userId = socket.handshake.query.userId;
+
+  // Register user socket
   if (userId) {
     userSocketMap[userId] = socket.id;
-    console.log(`User ${userId} mapped to socket ${socket.id}`);
-  }
-  if (groupId) {
-    groupSocketMap[groupId] = socket.id;
-    console.log(`Group ${groupId} mapped to socket ${socket.id}`);
+    console.log(`👤 User ${userId} mapped to socket ${socket.id}`);
   }
 
+  // Emit current online users
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+  // User joins a group room
+  socket.on("joinGroup", (groupId) => {
+    if (groupId) {
+      socket.join(groupId);
+      console.log(` Socket ${socket.id} joined group room ${groupId}`);
+    }
+  });
 
-  // Cleanup
+  // User sends message to group
+  socket.on("sendGroupMessage", ({ groupId, message }) => {
+    console.log(` Message sent to group ${groupId}:`, message);
+    io.to(groupId).emit("receiveGroupMessage", message);
+  });
+
+  // Personal message
+  socket.on("sendPrivateMessage", ({ receiverId, message }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receivePrivateMessage", message);
+    }
+  });
+
+  // Cleanup on disconnect
   socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
-    if (userId) delete userSocketMap[userId];
-    // if (groupId) delete groupSocketMap[groupId];
+    console.log(" A user disconnected:", socket.id);
+    for (const [uid, sid] of Object.entries(userSocketMap)) {
+      if (sid === socket.id) {
+        delete userSocketMap[uid];
+        break;
+      }
+    }
+
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
-// Exporting modules
+
+// Export server components
 module.exports = {
-  io,     
+  io,
   app,
   server,
   getReceiverSocketId,
-  getReceiverGroupSocketId
-
 };
-
