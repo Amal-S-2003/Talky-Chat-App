@@ -11,19 +11,18 @@ function MessageInput() {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file?.type?.startsWith("image/")) {
+    if (!file || !file.type.startsWith("image/")) {
       toast.error("Please select a valid image file.");
       return;
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
+    reader.onloadend = () => setImagePreview(reader.result);
     reader.readAsDataURL(file);
   };
 
-  const removeImage = () => {
+  const resetInput = () => {
+    setText("");
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -33,14 +32,11 @@ function MessageInput() {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      const message = { text, image: imagePreview };
-      sendMessage(message);
-      console.log("Sending message:", message);
-      setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      sendMessage({ text, image: imagePreview });
+      resetInput();
     } catch (error) {
       console.error("Failed to send message:", error);
+      toast.error("Failed to send message.");
     }
   };
 
@@ -51,13 +47,14 @@ function MessageInput() {
           <div className="relative">
             <img
               src={imagePreview}
-              alt="Preview"
+              alt="Image preview"
               className="w-20 h-20 object-cover rounded-md border border-gray-300 shadow-sm"
             />
             <button
-              onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-white text-black rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition"
               type="button"
+              onClick={resetInput}
+              title="Remove image"
+              className="absolute -top-2 -right-2 w-6 h-6 bg-white text-black rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition"
             >
               <X size={14} />
             </button>
@@ -69,8 +66,8 @@ function MessageInput() {
         <div className="flex-1 flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
           <input
             type="text"
-            className="w-full bg-transparent text-gray-800 placeholder:text-gray-400 focus:outline-none"
             placeholder="Type a message..."
+            className="w-full bg-transparent text-gray-800 placeholder:text-gray-400 focus:outline-none"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -82,6 +79,7 @@ function MessageInput() {
             className="hidden"
             onChange={handleImageChange}
           />
+
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -95,7 +93,8 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className={`p-2 rounded-full bg-gray-300 text-gray-800 hover:bg-gray-700 hover:text-white transition disabled:opacity-40`}
+          className="p-2 rounded-full bg-gray-300 text-gray-800 hover:bg-gray-700 hover:text-white transition disabled:opacity-40"
+          title="Send message"
         >
           <Send size={20} />
         </button>

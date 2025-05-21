@@ -4,26 +4,27 @@ import {
   createGroupAPI,
   deleteGroupAPI,
   editGroupAPI,
+  getGroupDetails,
   removeMemberAPI,
 } from "../services/allAPIS";
 
 export const GroupContext = createContext();
 
 export const GroupContextProvider = (props) => {
-  // const [groupMessages, setGroupMessages] = useState([]);
+  const [groupDetails, setGroupDetails] = useState([]);
 
-  // Fetch messages for a user
-  // const getGroupMessages = async (group) => {
-  //   try {
-  //     const res = await getGroupMessagesAPI(group.id);
-  //     setGroupMessages(res.data);
-  //   } catch (error) {
-  //     console.error(
-  //       "Failed to fetch messages:",
-  //       error?.response?.data?.message
-  //     );
-  //   }
-  // };
+
+  // Create Group
+  const fetchGroupDetails = async (id) => {
+    try {
+      const res = await getGroupDetails(id);
+      setGroupDetails(res.data)      
+      // return res.data;
+    } catch (error) {
+      console.error("Error in getting group details", error);
+      throw error;
+    }
+  };
 
   // Create Group
   const createGroup = async (groupData) => {
@@ -59,7 +60,9 @@ export const GroupContextProvider = (props) => {
   };
 
   // Add New Member
-  const addNewMember = async (groupId, userId) => {
+  const addMembersToGroup = async (groupId, userId) => {
+    console.log(groupId, userId);
+    
     try {
       const res = await addMemberAPI(groupId, userId);
       return res.data;
@@ -71,8 +74,12 @@ export const GroupContextProvider = (props) => {
 
   // Remove a Member
   const removeAMember = async (groupId, userId) => {
+          console.log(groupId,userId);
+
     try {
       const res = await removeMemberAPI(groupId, userId);
+      console.log(res);
+      
       return res.data;
     } catch (error) {
       console.error("Remove member failed:", error);
@@ -81,10 +88,12 @@ export const GroupContextProvider = (props) => {
   };
 
   const value = {
+    groupDetails, setGroupDetails,
+    fetchGroupDetails,
     createGroup,
     editGroup,
     deleteGroup,
-    addNewMember,
+    addMembersToGroup,
     removeAMember,
   };
 

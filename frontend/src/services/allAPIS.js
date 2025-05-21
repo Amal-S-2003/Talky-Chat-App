@@ -47,6 +47,9 @@ export const getGroupMessagesAPI=async(groupId)=>{
 export const getGroupsAPI=async()=>{
   return await commonAPI("GET", `${server_url}/get-groups`, "", "");
 }
+export const getGroupDetails=async(id)=>{
+  return await commonAPI("GET", `${server_url}/get-group/${id}`, "", "");
+}
 export const createGroupAPI=async(groupData)=>{
   return await commonAPI("POST", `${server_url}/create-group`, groupData, "");
 }
@@ -54,11 +57,11 @@ export const editGroupAPI=async(groupId, updatedData)=>{
   return await commonAPI("PUT", `${server_url}/edit-group/${groupId}`, updatedData, "");
 }
 export const deleteGroupAPI=async(groupId)=>{
-  return await commonAPI("DELETE", `${server_url}/delete-group/${groupId}`, "", "");
+  return await commonAPI("DELETE", `${server_url}/delete-group`, {groupId}, "");
 }
 export const addMemberAPI=async(groupId, userId)=>{
-  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/add`, userId, "");
+  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/add`, {userId}, "");
 }
 export const removeMemberAPI=async(groupId, userId)=>{
-  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/remove`, userId, "");
+  return await commonAPI("PUT", `${server_url}/edit-group/${groupId}/remove`, {userId}, "");
 }

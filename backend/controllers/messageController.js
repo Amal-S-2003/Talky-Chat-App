@@ -15,16 +15,21 @@ exports.getUserForSidebar = async (req, res) => {
   }
 };
 
-exports. getMessages = async (req, res) => {
+exports.getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const myId = req.user._id;
-    const msgs = await messages.find({
-      $or: [
-        { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId },
-      ],
-    });
+
+    const msgs = await messages
+      .find({
+        $or: [
+          { senderId: myId, receiverId: userToChatId },
+          { senderId: userToChatId, receiverId: myId },
+        ],
+      })
+      .populate("senderId", "username email profilePic") // adjust fields as needed
+      .populate("receiverId", "username email profilePic"); // adjust fields as needed
+
     res.status(200).json(msgs);
   } catch (error) {
     console.log("Error in getMessages:", error.message);
@@ -32,10 +37,8 @@ exports. getMessages = async (req, res) => {
   }
 };
 
-exports.sendMessage = async (req, res) => {
-  console.log("sendMessage func");
-  console.log("Params:", req.params);
 
+exports.sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
     const senderId = req.user._id;
@@ -58,9 +61,18 @@ exports.sendMessage = async (req, res) => {
       });
 
       await newMessage.save();
-      io.emit("newMessage", newMessage); // Broadcast to all in group (you can later optimize by group rooms)
-    } else if (req.params.userId) {
-      // Individual message
+
+      // Populate senderId before emitting
+      const populatedMessage = await messages.findById(newMessage._id)
+        .populate("senderId", "username profilePic")
+        .populate("group", "name");
+
+      io.to(req.params.groupId).emit("newGroupMessage", populatedMessage);
+      res.status(201).json(populatedMessage);
+
+    }
+     else if (req.params.userId) {
+      // Private message
       newMessage = new messages({
         senderId,
         receiverId: req.params.userId,
@@ -70,18 +82,23 @@ exports.sendMessage = async (req, res) => {
 
       await newMessage.save();
 
+      // Populate senderId before emitting
+      // const populatedMessage = await messages.findById(newMessage._id)
+      //   .populate("senderId", "username profilePic")
+      //   .populate("receiverId", "username");
+
       const receiverSocketId = getReceiverSocketId(req.params.userId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("newMessage", newMessage);
       }
+
+      res.status(201).json(populatedMessage);
     } else {
       return res.status(400).json({ error: "Invalid message target" });
     }
 
-    res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage:", error.message);
+    console.error("Error in sendMessage:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-

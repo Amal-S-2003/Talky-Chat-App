@@ -14,6 +14,7 @@ export const ChatContext = createContext();
 // ChatContextProvider component
 export const ChatContextProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
+  const [groupMessages, setGroupMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
 
@@ -54,7 +55,9 @@ export const ChatContextProvider = ({ children }) => {
       const res = isGroup
         ? await getGroupMessagesAPI(id)
         : await getMessagesAPI(id);
-      setMessages(res.data);
+        console.log("res.data");
+        
+      isGroup ? setGroupMessages(res.data) : setMessages(res.data);
     } catch (error) {
       console.error(
         "Failed to fetch messages:",
@@ -67,48 +70,62 @@ export const ChatContextProvider = ({ children }) => {
 
   // Send message to either selected user or selected group
   const sendMessage = async (messageData) => {
-    if (!selectedUser && !selectedGroup) return;
+  if (!selectedUser && !selectedGroup) return;
 
-    try {
-      const payload = selectedUser
-        ? { userId: selectedUser._id, data: messageData }
-        : { groupId: selectedGroup._id, data: messageData };
+  try {
+    const payload = selectedUser
+      ? { userId: selectedUser._id, data: messageData }
+      : { groupId: selectedGroup._id, data: messageData };
 
-      const res = await sendMessageAPI(payload);
+    const res = await sendMessageAPI(payload);
+
+    if (selectedUser) {
       setMessages((prev) => [...prev, res.data]);
-    } catch (error) {
-      console.error("Failed to send message:", error?.response?.data?.message);
+    } else if (selectedGroup) {
+      setGroupMessages((prev) => [...prev, res.data]); // ✅ Fix here
     }
-  };
+  } catch (error) {
+    console.error("Failed to send message:", error?.response?.data?.message);
+  }
+};
 
-  // Subscribe to real-time messages
-  const subscribeToMessages = () => {
-    if (!socket) return;
 
-    socket.on("newMessage", (newMessage) => {
-      // Group message
-      if (selectedGroup && newMessage.group === selectedGroup._id) {
-        setMessages((prev) => [...prev, newMessage]);
-      }
+const subscribeToMessages = () => {
+  if (!socket) return;
 
-      // Direct message
-      if (
-        selectedUser &&
-        !newMessage.group &&
-        (newMessage.senderId === selectedUser._id ||
-          newMessage.receiverId === selectedUser._id)
-      ) {
-        setMessages((prev) => [...prev, newMessage]);
-      }
-    });
-  };
-
-  // Unsubscribe from real-time messages
-  const unsubscribeFromMessages = () => {
-    if (socket) {
-      socket.off("newMessage");
+  // Personal messages
+  socket.on("newMessage", (newMessage) => {
+    if (
+      selectedUser &&
+      !newMessage.group &&
+      (newMessage.senderId === selectedUser._id ||
+        newMessage.receiverId === selectedUser._id)
+    ) {
+      setMessages((prev) => [...prev, newMessage]);
     }
+  });
+
+  // Group messages
+  socket.on("newGroupMessage", (newMessage) => {
+    if (selectedGroup && newMessage.group === selectedGroup._id) {
+      setGroupMessages((prev) => [...prev, newMessage]); // ✅ Fix here
+    }
+  });
+};
+
+const unsubscribeFromMessages = () => {
+  if (socket) {
+    socket.off("newMessage");
+    socket.off("newGroupMessage");
+  }
+};
+
+useEffect(() => {
+  subscribeToMessages();
+  return () => {
+    unsubscribeFromMessages();
   };
+}, [socket, selectedUser, selectedGroup]);
 
   // Context value
   const value = {
@@ -119,6 +136,8 @@ export const ChatContextProvider = ({ children }) => {
     selectedGroup,
     isUsersLoading,
     isMessagesLoading,
+    groupMessages,
+    setGroupMessages,
     setGroups,
     setSelectedUser,
     setSelectedGroup,
@@ -130,9 +149,5 @@ export const ChatContextProvider = ({ children }) => {
     unsubscribeFromMessages,
   };
 
-  return (
-    <ChatContext.Provider value={value}>
-      {children}
-    </ChatContext.Provider>
-  );
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
