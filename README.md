@@ -15,6 +15,14 @@ A real-time chat application built using the **MERN stack (MongoDB, Express.js, 
 - 🧼 Responsive UI with Tailwind CSS
 
 ---
+## 📸 Sample Screenshots
+
+![Register Page](https://res.cloudinary.com/dcqhijhla/image/upload/v1747841769/ucthisofpwcqpwcwkr4j.png)
+![Home Page](https://res.cloudinary.com/dcqhijhla/image/upload/v1747841602/y87xzvpvrs6oguditfl1.png)
+![Group Creating Page](https://res.cloudinary.com/dcqhijhla/image/upload/v1747842078/vobkpudeu3ixdewk58lb.png)
+![Chat Page](https://res.cloudinary.com/dcqhijhla/image/upload/v1747842277/wne7qg3ur5z5rvrngjdk.png)
+
+---
 
 ## 🛠️ Tech Stack
 
