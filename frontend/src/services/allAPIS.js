@@ -23,6 +23,9 @@ export const updateProfileAPI=async(reqBody)=>{
 export const getUsersAPI=async()=>{
   return await commonAPI("GET", `${server_url}/messages/users`, "", "");
 }
+export const getRecentChats=async()=>{
+  return await commonAPI("GET", `${server_url}/recent-chats`, "", "");
+}
 
 export const getMessagesAPI=async(userId)=>{
   return await commonAPI("GET", `${server_url}/messages/${userId}`, "", "");

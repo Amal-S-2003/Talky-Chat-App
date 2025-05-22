@@ -3,19 +3,31 @@ import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { useContext, useEffect } from "react";
-import { UserContext } from "./context/UserContext";
+import { UserContext } from "./context/UserContext";  
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import { Loader } from "lucide-react";  
 import CreateGroupPage from "./pages/CreateGroupPAge";
 import GroupDetails from "./pages/GroupDetails";
+import { ChatContext } from "./context/ChatContext";
 
 function App() {
     const {authUser,checkAuth, isCheckingAuth,onlineUsers}=useContext(UserContext)
+const {setSelectedUser,setSelectedGroup,getRecentChatUsers,getUsers,getGroups,getMessages}=useContext(ChatContext)
+useEffect(() => {
+      checkAuth();  
 
+}, []);
   useEffect(() => {
-    checkAuth();    
-  }, []);
+    if (authUser==null) {
+      setSelectedUser(null)
+      setSelectedGroup(null)
+    }
+    getRecentChatUsers()  
+    getUsers()
+    getGroups()
+    getMessages()
+  }, [authUser]);
 
 
   if (isCheckingAuth && !authUser)

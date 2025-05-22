@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ChatContext } from "../context/ChatContext";
 import { UserContext } from "../context/UserContext";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import { Users2, UsersRound } from "lucide-react";
+import { User, UsersRound } from "lucide-react";
 import { GroupContext } from "../context/GroupContext";
 
 const Sidebar = () => {
@@ -13,13 +13,14 @@ const Sidebar = () => {
     setSelectedUser,
     isUsersLoading,
     groups,
+    recentChats,
     getGroups,
     selectedGroup,
     setSelectedGroup,
   } = useContext(ChatContext);
 
   const { onlineUsers } = useContext(UserContext);
-  const {disconnectSocket, connectSocket } = useContext(GroupContext);
+  const { disconnectSocket, connectSocket } = useContext(GroupContext);
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [activeTab, setActiveTab] = useState("users"); // "users" or "groups"
@@ -28,15 +29,16 @@ const Sidebar = () => {
     getUsers();
     getGroups();
   }, []);
+
   useEffect(() => {
-    disconnectSocket()
-         connectSocket(selectedGroup)
-console.log("connectSocket(selectedGroup)")
+    disconnectSocket();
+    connectSocket(selectedGroup);
+    console.log("connectSocket(selectedGroup)");
   }, [selectedGroup]);
 
   const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+    ? recentChats.filter(({ user }) => onlineUsers.includes(user._id))
+    : recentChats;
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -56,7 +58,7 @@ console.log("connectSocket(selectedGroup)")
               setSelectedGroup(null);
             }}
           >
-            <Users2 className="w-4 h-4" />
+            <User className="w-4 h-4" />
             <span className="hidden lg:inline">Users</span>
           </button>
           <button
@@ -98,7 +100,7 @@ console.log("connectSocket(selectedGroup)")
       <div className="overflow-y-auto py-3 scrollbar-hidden flex-1">
         {activeTab === "users" ? (
           <>
-            {filteredUsers.map((user) => {
+            {filteredUsers?.map(({ user, lastMessage }) => {
               const isSelected = selectedUser?._id === user._id;
               const isOnline = onlineUsers.includes(user._id);
 
@@ -106,7 +108,7 @@ console.log("connectSocket(selectedGroup)")
                 <button
                   key={user._id}
                   onClick={() => {
-                    setSelectedUser(user)&&
+                    setSelectedUser(user);
                     setSelectedGroup(null);
                   }}
                   className={`w-full px-4 py-3 flex items-center cursor-pointer gap-3 transition-all rounded-md ${
@@ -130,8 +132,15 @@ console.log("connectSocket(selectedGroup)")
                     <div className="font-medium truncate text-white">
                       {user.username}
                     </div>
-                    <div className="text-xs text-zinc-400">
-                      {isOnline ? "Online" : "Offline"}
+                    <div className="text-xs text-zinc-400 truncate flex gap-2 items-center">
+                      {lastMessage?.image && (
+                        <img
+                          src={lastMessage.image}
+                          alt="media"
+                          className="w-4 h-4 rounded-sm object-cover"
+                        />
+                      )}
+                      {lastMessage?.text || "No message"}
                     </div>
                   </div>
                 </button>
@@ -139,20 +148,20 @@ console.log("connectSocket(selectedGroup)")
             })}
             {filteredUsers.length === 0 && (
               <div className="text-center text-zinc-500 py-6">
-                No online users
+                No recent chats found
               </div>
             )}
           </>
         ) : (
           <>
-            {groups.map((group) => {
+            {groups?.map((group) => {
               const isSelected = selectedGroup?._id === group._id;
 
               return (
                 <button
                   key={group._id}
                   onClick={() => {
-                    setSelectedGroup(group)&&
+                    setSelectedGroup(group);
                     setSelectedUser(null);
                   }}
                   className={`w-full px-4 py-3 flex items-center cursor-pointer gap-3 transition-all rounded-md ${

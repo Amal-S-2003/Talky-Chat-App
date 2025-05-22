@@ -15,6 +15,88 @@ exports.getUserForSidebar = async (req, res) => {
   }
 };
 
+
+
+exports.getRecentChats = async (req, res) => {
+  try {
+    const currentUserId = req.user._id; // assuming user is authenticated
+
+    const recentChats = await messages.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: currentUserId },
+            { receiverId: currentUserId }
+          ],
+          group: { $exists: false } // exclude group messages
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      },
+      {
+        $project: {
+          userId: {
+            $cond: [
+              { $eq: ["$senderId", currentUserId] },
+              "$receiverId",
+              "$senderId"
+            ]
+          },
+          text: 1,
+          image: 1,
+          createdAt: 1
+        }
+      },
+      {
+        $group: {
+          _id: "$userId",
+          lastMessage: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $unwind: "$user"
+      },
+      {
+        $project: {
+          _id: 0,
+          user: {
+            _id: "$user._id",
+            username: "$user.username",
+            profilePic: "$user.profilePic",
+            createdAt: "$user.createdAt"
+          },
+          lastMessage: {
+            text: "$lastMessage.text",
+            image: "$lastMessage.image",
+            createdAt: "$lastMessage.createdAt"
+          }
+        }
+      },
+      {
+        $sort: { "lastMessage.createdAt": -1 }
+      }
+    ]);
+
+    console.log(recentChats);
+    res.status(200).json(recentChats);
+    
+  } catch (error) {
+    console.error("Error fetching recent chats:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 exports.getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;

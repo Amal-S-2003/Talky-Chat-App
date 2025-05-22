@@ -3,6 +3,7 @@ import {
   getGroupMessagesAPI,
   getGroupsAPI,
   getMessagesAPI,
+  getRecentChats,
   getUsersAPI,
   sendMessageAPI,
 } from "../services/allAPIS";
@@ -14,6 +15,7 @@ export const ChatContext = createContext();
 // ChatContextProvider component
 export const ChatContextProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
+  const [recentChats, setRecentChats] = useState([]);
   const [groupMessages, setGroupMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -30,6 +32,21 @@ export const ChatContextProvider = ({ children }) => {
     try {
       const res = await getUsersAPI();
       setUsers(res.data);
+      console.log(res.data);
+      
+    } catch (error) {
+      console.error("Failed to fetch users:", error?.response?.data?.message);
+    } finally {
+      setIsUsersLoading(false);
+    }
+  };
+  // Fetch chat users
+  const getRecentChatUsers = async () => {
+    try {
+      const res = await getRecentChats();
+      setRecentChats(res.data);
+      console.log(res.data);
+      
     } catch (error) {
       console.error("Failed to fetch users:", error?.response?.data?.message);
     } finally {
@@ -83,9 +100,7 @@ export const ChatContextProvider = ({ children }) => {
         message: res.data,
       });
     } else if (selectedGroup) {
-      // setGroupMessages((prev) => [...prev, res.data]);
 
-      // 🔥 Emit group message to backend socket
       socket?.emit("sendGroupMessage", {
         groupId: selectedGroup._id,
         message: res.data,
@@ -138,6 +153,11 @@ useEffect(() => {
   };
 }, [socket,sendMessage, selectedUser, selectedGroup]);
 useEffect(() => {
+  
+  getRecentChatUsers()
+
+}, []);
+useEffect(() => {
   if (selectedGroup && socket) {
     socket.emit("joinGroup", selectedGroup._id);
   }
@@ -152,7 +172,7 @@ useEffect(() => {
     selectedGroup,
     isUsersLoading,
     isMessagesLoading,
-    groupMessages,
+    groupMessages,recentChats, setRecentChats,getRecentChatUsers,
     setGroupMessages,
     setGroups,
     setSelectedUser,

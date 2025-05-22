@@ -4,7 +4,6 @@ import MessageInput from "./MessageInput";
 import { ChatContext } from "../context/ChatContext";
 import { UserContext } from "../context/UserContext";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { GroupContext } from "../context/GroupContext";
 
 function ChatBody() {
   const {
@@ -72,7 +71,7 @@ function ChatBody() {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {chatMessages.map((message, idx) => {
+        {chatMessages?.map((message, idx) => {
           const sender =
             typeof message.senderId === "object"
               ? message.senderId

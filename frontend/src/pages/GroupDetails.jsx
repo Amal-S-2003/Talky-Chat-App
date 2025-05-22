@@ -63,7 +63,7 @@ const GroupDetails = () => {
       {/* Group Info */}
       <div className="flex items-center gap-4">
         <img
-          src={groupDetails.image}
+          src={groupDetails.image||'/group.png'}
           alt="Group"
           className="w-20 h-20 rounded-full border object-cover"
         />
@@ -118,7 +118,7 @@ const GroupDetails = () => {
         <div>
           <h4 className="text-md font-semibold mt-4 mb-2">Add New Member</h4>
           <ul className="space-y-2">
-            {nonMembers.map((user) => (
+            {nonMembers?.map((user) => (
               <li
                 key={user._id}
                 className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded"

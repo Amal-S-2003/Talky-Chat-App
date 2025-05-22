@@ -4,6 +4,7 @@ import ChatBody from "../components/ChatBody";
 import { ChatContext } from "../context/ChatContext";
 import NoChat from "../components/NoChat";
 import Navbar from "../components/Navbar";
+import ExploreUsers from "../components/ExploreUsers";
 
 function HomePage() {
   const { selectedUser,selectedGroup } = useContext(ChatContext);
@@ -16,6 +17,7 @@ function HomePage() {
             <div className="flex h-full rounded-lg overflow-hidden">
               <Sidebar />
               {!(selectedUser||selectedGroup) ? <NoChat /> : <ChatBody />}
+              <ExploreUsers/>
             </div>
           </div>
         </div>

@@ -17,7 +17,7 @@ router.get(
   messageController.getUserForSidebar
 );
 router.get("/messages/:id", protectRoute, messageController.getMessages);
-
+router.get("/recent-chats", protectRoute, messageController.getRecentChats);
 router.post("/messages/:userId", protectRoute, messageController.sendMessage);
 router.post("/group/:groupId", protectRoute, messageController.sendMessage);
 
