@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
   // Register user socket
   if (userId) {
     userSocketMap[userId] = socket.id;
-    console.log(`👤 User ${userId} mapped to socket ${socket.id}`);
+    console.log(` User ${userId} mapped to socket ${socket.id}`);
   }
 
   // Emit current online users

@@ -156,7 +156,7 @@ useEffect(() => {
   
   getRecentChatUsers()
 
-}, []);
+}, []); 
 useEffect(() => {
   if (selectedGroup && socket) {
     socket.emit("joinGroup", selectedGroup._id);
