@@ -23,8 +23,7 @@ const Sidebar = () => {
   const { disconnectSocket, connectSocket } = useContext(GroupContext);
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState("users"); // "users" or "groups"
-
+  const [activeTab, setActiveTab] = useState("users"); 
   useEffect(() => {
     getUsers();
     getGroups();
@@ -33,7 +32,6 @@ const Sidebar = () => {
   useEffect(() => {
     disconnectSocket();
     connectSocket(selectedGroup);
-    console.log("connectSocket(selectedGroup)");
   }, [selectedGroup]);
 
   const filteredUsers = showOnlineOnly

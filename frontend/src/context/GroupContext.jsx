@@ -8,6 +8,7 @@ import {
   removeMemberAPI,
 } from "../services/allAPIS";
 import { io } from "socket.io-client";
+import toast from "react-hot-toast";
 
 const BASE_URL = "http://localhost:3000"; // Change this to your production URL if needed
 
@@ -75,6 +76,13 @@ export const GroupContextProvider = ({ children }) => {
     try {
       const res = await createGroupAPI(groupData);
       connectSocket(res.data); // Connect to new group
+      console.log(res);
+      
+      if (res.status == 201) {
+        toast.success("Group Created Successfully");
+      } else {
+        toast.error("Group Creation Failed");
+      }
       return res.data;
     } catch (error) {
       console.error("Create group failed:", error);
@@ -86,6 +94,12 @@ export const GroupContextProvider = ({ children }) => {
   const editGroup = async (groupId, updatedData) => {
     try {
       const res = await editGroupAPI(groupId, updatedData);
+            if (res.status==200) {
+              toast.success("Group Updated")
+            } else {
+              toast.error("Group Updation Failed")
+              
+            }
       return res.data;
     } catch (error) {
       console.error("Edit group failed:", error);
@@ -98,6 +112,11 @@ export const GroupContextProvider = ({ children }) => {
     try {
       const res = await deleteGroupAPI(groupId);
       disconnectSocket();
+      if (res.status == 200) {
+        toast.success("Group Deleted Successfully");
+      } else {
+        toast.error("Group Deletion Failed");
+      }
       return res.data;
     } catch (error) {
       console.error("Delete group failed:", error);
@@ -109,6 +128,11 @@ export const GroupContextProvider = ({ children }) => {
   const addMembersToGroup = async (groupId, userId) => {
     try {
       const res = await addMemberAPI(groupId, userId);
+      if (res.status == 200) {
+        toast.success("New Member Added Successfully");
+      } else {
+        toast.error("Adding New Member Failed");
+      }
       return res.data;
     } catch (error) {
       console.error("Add member failed:", error);
@@ -120,6 +144,11 @@ export const GroupContextProvider = ({ children }) => {
   const removeAMember = async (groupId, userId) => {
     try {
       const res = await removeMemberAPI(groupId, userId);
+      if (res.status == 200) {
+        toast.success("Member Removed Successfully");
+      } else {
+        toast.error("Member Removing Failed");
+      }
       return res.data;
     } catch (error) {
       console.error("Remove member failed:", error);
@@ -151,8 +180,6 @@ export const GroupContextProvider = ({ children }) => {
     removeAMember,
   };
   return (
-    <GroupContext.Provider value={value}>
-      {children}
-    </GroupContext.Provider>
+    <GroupContext.Provider value={value}>{children}</GroupContext.Provider>
   );
 };

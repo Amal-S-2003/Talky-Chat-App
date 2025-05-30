@@ -6,9 +6,10 @@ import { GroupContext } from "../context/GroupContext";
 import { useNavigate } from "react-router-dom";
 
 function ChatHeader() {
-  const { selectedUser, setSelectedUser ,selectedGroup, setSelectedGroup} = useContext(ChatContext);
+  const { selectedUser, setSelectedUser, selectedGroup, setSelectedGroup } =
+    useContext(ChatContext);
   const { onlineUsers } = useContext(UserContext);
-const navigate=useNavigate()
+  const navigate = useNavigate();
   const isUserChat = Boolean(selectedUser);
   const isGroupChat = Boolean(selectedGroup);
 
@@ -47,11 +48,21 @@ const navigate=useNavigate()
             )}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900" onClick={()=>navigate(`/groups/group/${selectedGroup?._id}`)}>
+            <h3
+              className={`font-medium text-gray-900 ${
+                !isUserChat ? "cursor-pointer" : "cursor-default"
+              }`}
+              onClick={() => {
+                if (!isUserChat) {
+                  navigate(`/groups/group/${selectedGroup?._id}`);
+                }
+              }}
+            >
               {isUserChat ? selectedUser.username : selectedGroup.name}
             </h3>
+
             <p className="text-sm text-gray-500">
-              {isUserChat ? (isOnline ? "🟢 Online" : "⚪ Offline") : "Group Chat"}
+              {isUserChat ? (isOnline ? " Online" : " Offline") : "Group Chat"}
             </p>
           </div>
         </div>

@@ -30,7 +30,7 @@ function CreateGroupPage() {
     );
   };
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup =async () => {
     if (!groupName.trim()) {
       alert("Group name is required.");
       return;
@@ -42,9 +42,7 @@ function CreateGroupPage() {
       members: selectedUsers,
     };
 
-    console.log("Group Created:", newGroup);
-    // Handle API call here
-    createGroup(newGroup)
+    await createGroup(newGroup)
     navigate("/");
   };
 

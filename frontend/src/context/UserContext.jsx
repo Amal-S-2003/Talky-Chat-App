@@ -7,6 +7,7 @@ import {
   registerAPI,
   updateProfileAPI,
 } from "../services/allAPIS";
+import toast from 'react-hot-toast';
 
 const BASE_URL = "http://localhost:3000"; // Update for production
 
@@ -89,9 +90,18 @@ export const UserContextProvider = ({ children }) => {
     setIsLoggingIn(true);
     try {
       const res = await loginAPI(data);
+      console.log(res);
+      
       setAuthUser(res.data);
 
       connectSocket(res.data);
+
+      if (res.status==200) {
+        toast.success("Login Successfull")
+      } else {
+        toast.error(res?.response?.data?.message)
+        
+      }
     } catch (error) {
       console.error(
         "Login failed:",
@@ -123,6 +133,12 @@ const updateProfile = async (data) => {
   try {
     const res = await updateProfileAPI(data);
     setAuthUser(res.data);
+       if (res.status==200) {
+        toast.success("Profile Updated")
+      } else {
+        toast.error("Profile Updation Failed")
+        
+      }
   } catch (error) {
     const errorMessage =
       error.response?.data?.message || error.message || "Unknown error";

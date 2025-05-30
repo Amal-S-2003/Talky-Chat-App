@@ -83,7 +83,7 @@ exports.editGroup = async (req, res) => {
       { new: true }
     );
 
-    res.json(updatedGroup);
+    res.json(updatedGroup); 
   } catch (err) {
     res
       .status(500)

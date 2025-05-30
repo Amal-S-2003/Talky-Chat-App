@@ -11,7 +11,6 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic form validation
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
@@ -20,12 +19,9 @@ function LoginPage() {
     setError("");
     const loginData = { email, password };
 
-    // Log the values or call an API
-    console.log("Login submitted:", loginData);
     const res = await login(loginData);
     console.log("Login response", res);
 
-    // TODO: Send login request to server here
   };
 
   return (

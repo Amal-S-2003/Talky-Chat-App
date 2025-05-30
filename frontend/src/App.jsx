@@ -3,32 +3,39 @@ import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { useContext, useEffect } from "react";
-import { UserContext } from "./context/UserContext";  
+import { UserContext } from "./context/UserContext";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
-import { Loader } from "lucide-react";  
+import { Loader } from "lucide-react";
 import CreateGroupPage from "./pages/CreateGroupPAge";
 import GroupDetails from "./pages/GroupDetails";
 import { ChatContext } from "./context/ChatContext";
+import { Toaster } from "react-hot-toast";
 
 function App() {
-    const {authUser,checkAuth, isCheckingAuth,onlineUsers}=useContext(UserContext)
-const {setSelectedUser,setSelectedGroup,getRecentChatUsers,getUsers,getGroups,getMessages}=useContext(ChatContext)
-useEffect(() => {
-      checkAuth();  
-
-}, []);
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } =
+    useContext(UserContext);
+  const {
+    setSelectedUser,
+    setSelectedGroup,
+    getRecentChatUsers,
+    getUsers,
+    getGroups,
+    getMessages,
+  } = useContext(ChatContext);
   useEffect(() => {
-    if (authUser==null) {
-      setSelectedUser(null)
-      setSelectedGroup(null)
+    checkAuth();
+  }, []);
+  useEffect(() => {
+    if (authUser == null) {
+      setSelectedUser(null);
+      setSelectedGroup(null);
     }
-    getRecentChatUsers()  
-    getUsers()
-    getGroups()
-    getMessages()
+    getRecentChatUsers();
+    getUsers();
+    getGroups();
+    getMessages();
   }, [authUser]);
-
 
   if (isCheckingAuth && !authUser)
     return (
@@ -38,7 +45,7 @@ useEffect(() => {
     );
   return (
     <>
- <Routes>
+      <Routes>
         <Route
           path="/"
           element={authUser ? <HomePage /> : <Navigate to="/login" />}
@@ -57,10 +64,11 @@ useEffect(() => {
         />
 
         <Route path="/groups">
-       < Route path="create" element={<CreateGroupPage/>}/>
-       < Route path="group/:groupId" element={<GroupDetails/>}/>
+          <Route path="create" element={<CreateGroupPage />} />
+          <Route path="group/:groupId" element={<GroupDetails />} />
         </Route>
       </Routes>
+      <Toaster/>
     </>
   );
 }

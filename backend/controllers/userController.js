@@ -9,11 +9,11 @@ exports.login = async (req, res) => {
   try {
     const user = await users.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid Email" });
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid Password" });
     }
 
     generateToken(user._id, res);
@@ -23,9 +23,7 @@ exports.login = async (req, res) => {
       username: user.username,
       email: user.email,
       profilePic: user.profilePic,
-    });
-    console.log("Login Successfully");
-    
+    });    
   } catch (error) {
     console.log("Error in login Controller", error.message);
     return res.status(500).json({ message: "Internal Server Error" });

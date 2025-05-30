@@ -30,7 +30,9 @@ function ProfilePage() {
     reader.onload = async () => {
       const base64Image = reader.result;
       setSelectedImage(base64Image);
-      await updateProfile({ profilePic: base64Image });
+      const res=await updateProfile({ profilePic: base64Image });
+      console.log(res);
+      
     };
   };
 

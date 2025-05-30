@@ -31,9 +31,7 @@ export const ChatContextProvider = ({ children }) => {
     setIsUsersLoading(true);
     try {
       const res = await getUsersAPI();
-      setUsers(res.data);
-      console.log(res.data);
-      
+      setUsers(res.data);      
     } catch (error) {
       console.error("Failed to fetch users:", error?.response?.data?.message);
     } finally {
@@ -44,9 +42,7 @@ export const ChatContextProvider = ({ children }) => {
   const getRecentChatUsers = async () => {
     try {
       const res = await getRecentChats();
-      setRecentChats(res.data);
-      console.log(res.data);
-      
+      setRecentChats(res.data);      
     } catch (error) {
       console.error("Failed to fetch users:", error?.response?.data?.message);
     } finally {
@@ -92,6 +88,7 @@ export const ChatContextProvider = ({ children }) => {
       : { groupId: selectedGroup._id, data: messageData };
 
     const res = await sendMessageAPI(payload);
+  getRecentChatUsers()
 
     if (selectedUser) {
       setMessages((prev) => [...prev, res.data]);
